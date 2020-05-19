@@ -25,6 +25,14 @@ public class MapboxApI : MonoBehaviour
     public Text currentLookAtVector3;
     public Text currentFeatures;
     public Text userVector2D;
+    public Slider detectionSlider;
+    public Text sliderValue;
+    public Text dynamicFeatureListCount;
+    public Text distanceToFeature;  
+    public Text fzeroDouble;
+    public List<mapboxFeatureClass> dynamicFeatureList;
+
+
 
 
     //API Details
@@ -43,7 +51,6 @@ public class MapboxApI : MonoBehaviour
     //Detection System Initial Stuff
     public double detectionRadius = 0;
     public int nearbyFeatures = 0;
-    public List<mapboxFeatureClass> dynamicFeatureList;
     public Vector2d userV2D;
 
 
@@ -52,6 +59,7 @@ public class MapboxApI : MonoBehaviour
     public void Start()
     {
         StartCoroutine(listLandmarks());
+        StartCoroutine(populateDynamicList(detectionSlider.value));
         //StartCoroutine(createLandmark());
 
     }
@@ -59,18 +67,45 @@ public class MapboxApI : MonoBehaviour
     public void Update()
     {
 
-        //Report User Look To GUI
+        //GUI Debugging Things
         focusSquareRayRayCastHit = userFocusSquare.focusSquareRayCastHitVector;
         currentLookAtVector3.text = "Current Look at V3: "+focusSquareRayRayCastHit.ToString();
         userVector2D.text = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit).ToString();
         currentFeatures.text = RetrievedFeatureList.features.Count.ToString();
+        sliderValue.text = detectionSlider.value.ToString();
+        dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
 
-        // foreach (mapboxFeatureClass mfc in RetrievedFeatureList.features)
-        // {
-
-        // }
+        //Keep Polling the distance to that first feature ?
+        distanceToFeature.text = landMarkDistance(RetrievedFeatureList.features[0],focusSquareRayRayCastHit).ToString();
     }
 
+    public float landMarkDistance(mapboxFeatureClass inputFeature, Vector3 LookAtRaycast)
+    {
+        //This function calculates the distance between the user's focus square and a particular feature
+        Vector3 featureVector3;
+        Vector2d featureVector2d;
+
+        featureVector2d.x = inputFeature.geometry.coordinates[0];
+        featureVector2d.y = inputFeature.geometry.coordinates[1];
+        featureVector3 = locationProviderFactoryLink.mapManager.GeoToWorldPosition(featureVector2d);
+
+        return Vector3.Distance(LookAtRaycast,featureVector3);
+
+    }
+
+    // public void populateDynamiclist(float maxDistance)
+    // {
+    //     dynamicFeatureList.Clear();
+    //     //Periodically Populate the list and exclude if the distance is larger than max distance
+    //     foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
+    //     {
+    //         float distance = landMarkDistance(i,focusSquareRayRayCastHit);
+    //         if (distance > maxDistance)
+    //         {
+    //             dynamicFeatureList.Add(i);
+    //         }
+    //     }
+    // }
 
     public IEnumerator listLandmarks()
     {
@@ -137,5 +172,22 @@ public class MapboxApI : MonoBehaviour
         {
             Debug.Log("Passed "+www.downloadHandler.text);
         }
+    }
+
+    public IEnumerator populateDynamicList(float maxDistance)
+    {
+        Debug.Log("Populating List!");
+        dynamicFeatureList.Clear();
+        //Periodically Populate the list and exclude if the distance is larger than max distance
+        foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
+        {
+            float distance = landMarkDistance(i,focusSquareRayRayCastHit);
+            if (distance < maxDistance)
+            {
+                dynamicFeatureList.Add(i);
+            }
+        }
+        yield return new WaitForSeconds(5.0f);
+        StartCoroutine(populateDynamicList(detectionSlider.value));
     }
 }
