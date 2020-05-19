@@ -75,7 +75,7 @@ public class MapboxApI : MonoBehaviour
         sliderValue.text = detectionSlider.value.ToString();
         dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
 
-        //Keep Polling the distance to that first feature ?
+        //Keep Polling the distance to that first feature [For Debugging Only]
         distanceToFeature.text = landMarkDistance(RetrievedFeatureList.features[0],focusSquareRayRayCastHit).ToString();
     }
 
@@ -85,8 +85,12 @@ public class MapboxApI : MonoBehaviour
         Vector3 featureVector3;
         Vector2d featureVector2d;
 
-        featureVector2d.x = inputFeature.geometry.coordinates[0];
-        featureVector2d.y = inputFeature.geometry.coordinates[1];
+        //Need to check the latlon or lonlat here
+        //Appears That X is Lat and Y is Lon
+        //JSON 0 is Lon and 1 is Lat
+        //Still to be confirmed
+        featureVector2d.x = inputFeature.geometry.coordinates[1];
+        featureVector2d.y = inputFeature.geometry.coordinates[0];
         featureVector3 = locationProviderFactoryLink.mapManager.GeoToWorldPosition(featureVector2d);
 
         return Vector3.Distance(LookAtRaycast,featureVector3);
@@ -178,6 +182,7 @@ public class MapboxApI : MonoBehaviour
     {
         Debug.Log("Populating List!");
         dynamicFeatureList.Clear();
+        
         //Periodically Populate the list and exclude if the distance is larger than max distance
         foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
         {
