@@ -23,4 +23,15 @@ public class Geometry
 public class Properties
 {
     public string name;
+    public int likes;
+    public string creator;
+}
+
+
+//Testing
+[System.Serializable]
+public class mapboxFeatureSet
+{
+    public string type;
+    public List<mapboxFeatureClass> features;
 }
