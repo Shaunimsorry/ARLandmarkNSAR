@@ -810,6 +810,7 @@ MonoBehaviour:
   fzeroDouble: {fileID: 0}
   dynamicFeatureList: []
   TXTInput_LandMarkName: {fileID: 1568588383}
+  landmarkScale: {x: 0.25, y: 0.25, z: 0.25}
   landMarkPrefab: {fileID: 8456964840504316520, guid: aad1daf3fb45e794dbe0b937faccaba0,
     type: 3}
   userLookLandMark: {fileID: 0}

@@ -27,6 +27,7 @@ public class Properties
     public string creator;
     public int thumbImage;
     public int bgLImage;
+    public string landmarkID;
 }
 
 
