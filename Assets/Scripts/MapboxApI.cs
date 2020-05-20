@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -32,7 +31,8 @@ public class MapboxApI : MonoBehaviour
     public Text fzeroDouble;
     public List<mapboxFeatureClass> dynamicFeatureList;
 
-
+    //LandMark User Input Details
+    public InputField TXTInput_LandMarkName;
 
 
     //API Details
@@ -58,8 +58,8 @@ public class MapboxApI : MonoBehaviour
     //Start!
     public void Start()
     {
-        StartCoroutine(listLandmarks());
-        StartCoroutine(populateDynamicList(detectionSlider.value));
+        //StartCoroutine(listLandmarks());
+        //StartCoroutine(populateDynamicList(detectionSlider.value));
         //StartCoroutine(createLandmark());
 
     }
@@ -73,10 +73,19 @@ public class MapboxApI : MonoBehaviour
         userVector2D.text = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit).ToString();
         currentFeatures.text = RetrievedFeatureList.features.Count.ToString();
         sliderValue.text = detectionSlider.value.ToString();
-        dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
+        //dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
 
         //Keep Polling the distance to that first feature [For Debugging Only]
         distanceToFeature.text = landMarkDistance(RetrievedFeatureList.features[0],focusSquareRayRayCastHit).ToString();
+
+    }
+
+    public void spawnLandMarkAtLocation()
+    {
+        Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
+        string LandMarkName = TXTInput_LandMarkName.text;
+        StartCoroutine(createLandmark(landmarkLocation,LandMarkName));
+        dynamicFeatureListCount.text = "Landmark Created!";
     }
 
     public float landMarkDistance(mapboxFeatureClass inputFeature, Vector3 LookAtRaycast)
@@ -97,6 +106,20 @@ public class MapboxApI : MonoBehaviour
 
     }
 
+    public string generateFeatureID()
+    {
+        string generatedFeatureID = "";
+        const string glyphs = "abcdefghijklmnopqrstuvwxyz123456789";
+
+        //added one more here to make it 32
+        //string referenceMapBoxString = "1d470b6133258df834ed36fc0c3ec0";
+        for(int i = 0; i<32; i++)
+        {
+            generatedFeatureID += glyphs[Random.Range(0,glyphs.Length)];
+        }
+        return generatedFeatureID;
+    }
+   
     // public void populateDynamiclist(float maxDistance)
     // {
     //     dynamicFeatureList.Clear();
@@ -133,37 +156,37 @@ public class MapboxApI : MonoBehaviour
         //     Debug.Log(i.geometry.coordinates[0]);
         // }
     }
-    public IEnumerator createLandmark()
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName)
     {   
-        double x = 67.035213;
-        double y = 24.841509;
+        //string feature_id = "d470b6133258df834ed36fc0c3ec0";
+        //Prepare a randomly generated FeatureID
+        string feature_id = generateFeatureID();
 
-        string feature_id = "d470b6133258df834ed36fc0c3ec0";
-
+        //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
-
         Properties featureProperties = new Properties();
         Geometry featureGeometry = new Geometry();
         List<double> featurecoordinates = new List<double>();
-
         testLandMark.properties = featureProperties;
         testLandMark.geometry = featureGeometry;
         testLandMark.geometry.coordinates = featurecoordinates;
+        var userFocusVector2D = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
 
-
+        //Fill in the landmark Data
         testLandMark.id = feature_id;
         testLandMark.type = "Feature";
-        testLandMark.properties.name = "ThePlace";
-        testLandMark.geometry.coordinates.Add(x);
-        testLandMark.geometry.coordinates.Add(y);
+        testLandMark.properties.name = LandMarkName;
+        testLandMark.geometry.coordinates.Add(landmarkLocation.x);
+        testLandMark.geometry.coordinates.Add(landmarkLocation.y);
         testLandMark.geometry.type = "Point";
-
         testLandMark.properties.creator = "Xinz";
         testLandMark.properties.likes = 1112;
 
+        //Final JSON Conversion
         jsonOutput= JsonUtility.ToJson(testLandMark);
 
-        string endpoint_create = "https://api.mapbox.com/datasets/v1/tankbusta/cka0vudxx13p72smuavafd1um/features/"+feature_id+"/?access_token=sk.eyJ1IjoidGFua2J1c3RhIiwiYSI6ImNrYWQ3MjN6ODFqMWMzNHM5NzM3bm40ajgifQ.WEZKnrork6sshSBo1aPcjA";
+        //Start Sending the landmark to MBApi
+        string endpoint_create = "https://api.mapbox.com/datasets/v1/tankbusta/"+dataset_id+"/features/"+feature_id+"/?access_token="+secret_token;
         UnityWebRequest www=UnityWebRequest.Put(endpoint_create,jsonOutput);
         www.SetRequestHeader("Content-Type", "application/json");
         yield return www.SendWebRequest();
@@ -177,7 +200,6 @@ public class MapboxApI : MonoBehaviour
             Debug.Log("Passed "+www.downloadHandler.text);
         }
     }
-
     public IEnumerator populateDynamicList(float maxDistance)
     {
         Debug.Log("Populating List!");
