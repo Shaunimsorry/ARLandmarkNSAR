@@ -33,6 +33,7 @@ public class MapboxApI : MonoBehaviour
 
     //LandMark Spawning Variables
     public InputField TXTInput_LandMarkName;
+    public Vector3 landmarkScale;
     public GameObject landMarkPrefab;
     //The Landmark the user is looking at (deduced via raycasting)
     public GameObject userLookLandMark;
@@ -91,6 +92,7 @@ public class MapboxApI : MonoBehaviour
         StartCoroutine(createLandmark(landmarkLocation,LandMarkName));
         dynamicFeatureListCount.text = "Landmark Created!";
         GameObject deployedLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
+        deployedLandmark.transform.localScale = landmarkScale;
         dynamicFeatureListCount.text = "Landmark Deployed";
     }
 
@@ -182,11 +184,12 @@ public class MapboxApI : MonoBehaviour
         testLandMark.id = feature_id;
         testLandMark.type = "Feature";
         testLandMark.properties.name = LandMarkName;
-        testLandMark.geometry.coordinates.Add(landmarkLocation.x);
         testLandMark.geometry.coordinates.Add(landmarkLocation.y);
+        testLandMark.geometry.coordinates.Add(landmarkLocation.x);
         testLandMark.geometry.type = "Point";
         testLandMark.properties.creator = "Xinz";
         testLandMark.properties.likes = 1112;
+        testLandMark.properties.landmarkID = feature_id;
 
         //Final JSON Conversion
         jsonOutput= JsonUtility.ToJson(testLandMark);
