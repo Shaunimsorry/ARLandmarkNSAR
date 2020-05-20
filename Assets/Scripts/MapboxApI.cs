@@ -31,8 +31,11 @@ public class MapboxApI : MonoBehaviour
     public Text fzeroDouble;
     public List<mapboxFeatureClass> dynamicFeatureList;
 
-    //LandMark User Input Details
+    //LandMark Spawning Variables
     public InputField TXTInput_LandMarkName;
+    public GameObject landMarkPrefab;
+    //The Landmark the user is looking at (deduced via raycasting)
+    public GameObject userLookLandMark;
 
 
     //API Details
@@ -83,9 +86,12 @@ public class MapboxApI : MonoBehaviour
     public void spawnLandMarkAtLocation()
     {
         Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
+        Vector3 landmarkDeploylocation = focusSquareRayRayCastHit;
         string LandMarkName = TXTInput_LandMarkName.text;
         StartCoroutine(createLandmark(landmarkLocation,LandMarkName));
         dynamicFeatureListCount.text = "Landmark Created!";
+        GameObject deployedLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
+        dynamicFeatureListCount.text = "Landmark Deployed";
     }
 
     public float landMarkDistance(mapboxFeatureClass inputFeature, Vector3 LookAtRaycast)
