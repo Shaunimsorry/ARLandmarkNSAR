@@ -97,12 +97,10 @@ public class MapboxApI : MonoBehaviour
         existingLandMarkLocation.y = feature.geometry.coordinates[0];
         existingLandMarkLocation.x = feature.geometry.coordinates[1];
         Vector3 existingLandMarkUnityLocation = locationProviderFactoryLink.mapManager.GeoToWorldPosition(existingLandMarkLocation);
-
-        if(userFocusSquare.focusSquareRayCastHitVector !=null)
-        {
-            existingLandMarkUnityLocation.y = userFocusSquare.focusSquareRayCastHitVector.y;
-        }
         
+        //FIND A BETTER WAY TO DO THIS #TODO
+        existingLandMarkUnityLocation.y = -1;
+       
         GameObject existingLandMark = GameObject.Instantiate(landMarkPrefab,existingLandMarkUnityLocation, landMarkPrefab.transform.rotation);
         existingLandMark.name = "Landmark_"+feature_id.ToString();
         existingLandMark.transform.localScale = landmarkScale;
@@ -264,7 +262,9 @@ public class MapboxApI : MonoBehaviour
                     reConfirmedVector2D.y = feature.geometry.coordinates[0];
                     reConfirmedVector2D.x = feature.geometry.coordinates[1];
                     Vector3 reConfirmedVector3 = locationProviderFactoryLink.mapManager.GeoToWorldPosition(reConfirmedVector2D);
-                    reConfirmedVector3.y = userFocusSquare.focusSquareRayCastHitVector.y;
+                    
+                    //FIND A BETTER WAY TO DO THIS #TODO
+                    reConfirmedVector3.y = -1;
                     i.transform.position = reConfirmedVector3;
                 }
             }

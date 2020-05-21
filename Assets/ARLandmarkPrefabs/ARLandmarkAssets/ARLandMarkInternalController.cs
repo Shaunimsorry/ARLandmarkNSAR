@@ -8,15 +8,20 @@ public class ARLandMarkInternalController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     { 
-        // if(!targetCamera)
-        // {
-        //     targetCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-        // } 
+        if(!targetCamera)
+        {
+            targetCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        } 
     }
 
     // Update is called once per frame
     void Update()
     {
-        //transform.LookAt(targetCamera.transform, transform.up);
+        Vector3 landmarkVector = transform.position;
+        Vector3 cameraVector = targetCamera.transform.position;
+        Vector3 relativepos = cameraVector - landmarkVector;
+        relativepos.y = 0;
+        Quaternion deducedRotation = Quaternion.LookRotation(relativepos);;
+        transform.rotation = deducedRotation;
     }
 }
