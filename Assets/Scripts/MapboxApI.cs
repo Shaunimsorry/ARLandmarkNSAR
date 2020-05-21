@@ -17,17 +17,16 @@ public class MapboxApI : MonoBehaviour
     //Interface Into Locationprovider
     public LocationProviderFactory locationProviderFactoryLink;
     public ARFocusSquare userFocusSquare;
-    public Vector3 focusSquareRayRayCastHit; 
+    public Vector3 focusSquareRayRayCastHit;
+    public float landmarkSpawnDistance = 100.0f; 
 
     //SetupDebuging Texts
     public Text currentLocation;
     public Text currentLookAtVector3;
     public Text currentFeatures;
     public Text userVector2D;
-    public Slider detectionSlider;
-    public Text sliderValue;
     public Text dynamicFeatureListCount;
-    public Text distanceToFeature;  
+    public Text LiveDebug;  
     public Text fzeroDouble;
     public List<mapboxFeatureClass> dynamicFeatureList;
 
@@ -57,15 +56,19 @@ public class MapboxApI : MonoBehaviour
     public int nearbyFeatures = 0;
     public Vector2d userV2D;
 
+    //Building Live Landmark Spawning
+    public List<GameObject> LiveLandMarks;
+
 
 
     //Start!
     public void Start()
     {
-        //StartCoroutine(listLandmarks());
-        //StartCoroutine(populateDynamicList(detectionSlider.value));
-        //StartCoroutine(createLandmark());
-
+        //Activate The Mapbox API and Pulldown all the data
+        StartCoroutine(listLandmarks());
+        //Populate The Dynamic List With Landmarks 100 Clicks From GPS every 5 Seconds
+        StartCoroutine(populateDynamicList(landmarkSpawnDistance));
+        //Deploy and manage all landmarks from the lists
     }
 
     public void Update()
@@ -76,24 +79,36 @@ public class MapboxApI : MonoBehaviour
         currentLookAtVector3.text = "Current Look at V3: "+focusSquareRayRayCastHit.ToString();
         userVector2D.text = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit).ToString();
         currentFeatures.text = RetrievedFeatureList.features.Count.ToString();
-        sliderValue.text = detectionSlider.value.ToString();
-        //dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
-
-        //Keep Polling the distance to that first feature [For Debugging Only]
-        distanceToFeature.text = landMarkDistance(RetrievedFeatureList.features[0],focusSquareRayRayCastHit).ToString();
-
+        dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
     }
 
-    public void spawnLandMarkAtLocation()
+    public void CreateNewLandMarkAtLocation()
     {
         Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
         Vector3 landmarkDeploylocation = focusSquareRayRayCastHit;
+        string feature_id = generateFeatureID();
         string LandMarkName = TXTInput_LandMarkName.text;
-        StartCoroutine(createLandmark(landmarkLocation,LandMarkName));
-        dynamicFeatureListCount.text = "Landmark Created!";
-        GameObject deployedLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
-        deployedLandmark.transform.localScale = landmarkScale;
-        dynamicFeatureListCount.text = "Landmark Deployed";
+        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id));
+        GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
+        createdLandmark.name = "Landmark_"+feature_id.ToString();
+        createdLandmark.transform.localScale = landmarkScale;
+        LiveLandMarks.Add(createdLandmark);
+        
+        LiveDebug.text = "Creating New LandMark";
+    }
+
+    public void SpawnExistingLandMarkIntoScene(string feature_id, mapboxFeatureClass feature)
+    {
+        Vector2d existingLandMarkLocation;
+        existingLandMarkLocation.y = feature.geometry.coordinates[0];
+        existingLandMarkLocation.x = feature.geometry.coordinates[1];
+        Vector3 existingLandMarkUnityLocation = locationProviderFactoryLink.mapManager.GeoToWorldPosition(existingLandMarkLocation);
+        GameObject existingLandMark = GameObject.Instantiate(landMarkPrefab,existingLandMarkUnityLocation, landMarkPrefab.transform.rotation);
+        existingLandMark.name = "Landmark_"+feature_id.ToString();
+        existingLandMark.transform.localScale = landmarkScale;
+        LiveLandMarks.Add(existingLandMark);
+
+        LiveDebug.text = "Adding Existing LandMark";
     }
 
     public float landMarkDistance(mapboxFeatureClass inputFeature, Vector3 LookAtRaycast)
@@ -113,7 +128,6 @@ public class MapboxApI : MonoBehaviour
         return Vector3.Distance(LookAtRaycast,featureVector3);
 
     }
-
     public string generateFeatureID()
     {
         string generatedFeatureID = "";
@@ -127,21 +141,6 @@ public class MapboxApI : MonoBehaviour
         }
         return generatedFeatureID;
     }
-   
-    // public void populateDynamiclist(float maxDistance)
-    // {
-    //     dynamicFeatureList.Clear();
-    //     //Periodically Populate the list and exclude if the distance is larger than max distance
-    //     foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
-    //     {
-    //         float distance = landMarkDistance(i,focusSquareRayRayCastHit);
-    //         if (distance > maxDistance)
-    //         {
-    //             dynamicFeatureList.Add(i);
-    //         }
-    //     }
-    // }
-
     public IEnumerator listLandmarks()
     {
         string endpoint_list = "https://api.mapbox.com/datasets/v1/"+userName+"/"+dataset_id+"/"+"features?"+"access_token="+access_token;
@@ -158,18 +157,9 @@ public class MapboxApI : MonoBehaviour
         {
             Debug.Log("Passed "+www.downloadHandler.text);
         }
-        
-        // foreach (mapboxFeatureClass i in RetrievedFeatureList.features)
-        // {
-        //     Debug.Log(i.geometry.coordinates[0]);
-        // }
     }
-    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName)
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id)
     {   
-        //string feature_id = "d470b6133258df834ed36fc0c3ec0";
-        //Prepare a randomly generated FeatureID
-        string feature_id = generateFeatureID();
-
         //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
         Properties featureProperties = new Properties();
@@ -179,7 +169,6 @@ public class MapboxApI : MonoBehaviour
         testLandMark.geometry = featureGeometry;
         testLandMark.geometry.coordinates = featurecoordinates;
         var userFocusVector2D = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
-
         //Fill in the landmark Data
         testLandMark.id = feature_id;
         testLandMark.type = "Feature";
@@ -190,6 +179,7 @@ public class MapboxApI : MonoBehaviour
         testLandMark.properties.creator = "Xinz";
         testLandMark.properties.likes = 1112;
         testLandMark.properties.landmarkID = feature_id;
+        dynamicFeatureList.Add(testLandMark);
 
         //Final JSON Conversion
         jsonOutput= JsonUtility.ToJson(testLandMark);
@@ -212,18 +202,70 @@ public class MapboxApI : MonoBehaviour
     public IEnumerator populateDynamicList(float maxDistance)
     {
         Debug.Log("Populating List!");
-        dynamicFeatureList.Clear();
-        
         //Periodically Populate the list and exclude if the distance is larger than max distance
+        //This should eventually become a city or area list << TODO
+        //So the larger ideas is 
         foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
         {
+            Debug.Log("Checking Max D");
             float distance = landMarkDistance(i,focusSquareRayRayCastHit);
             if (distance < maxDistance)
             {
-                dynamicFeatureList.Add(i);
+                Debug.Log("Found Landmarks Undermax D");
+                //Check if the feature is live or in the dynaamic list
+                if(!dynamicFeatureList.Contains(i))
+                {
+                    Debug.Log("Feauture In List!");
+                    //Not in game or dynamic list spawn the existing object
+                    dynamicFeatureList.Add(i);
+                    SpawnExistingLandMarkIntoScene(i.properties.landmarkID,i);
+                }else
+                {
+                    Debug.Log("Correcting for error");
+                    //Check if the object is in the lists but not in the scene
+                    GameObject searchResult = GameObject.Find("Landmark_"+i.properties.landmarkID.ToString());
+                    if (!searchResult)
+                    {
+                        if(searchResult = null)
+                        {
+                            dynamicFeatureList.Remove(i);
+                        }
+                    }
+                }
+            }else
+            {
+                //Object is too far remove and clean from lists
+                Debug.Log("Detroying Feature");
+                dynamicFeatureList.Remove(i);
+                string LandMarkToDestroyName = "Landmark_"+i.properties.landmarkID.ToString();
+                GameObject.Destroy(GameObject.Find(LandMarkToDestroyName));
+                //You can optimize this
+                LiveLandMarks.Remove(GameObject.Find(LandMarkToDestroyName));
             }
         }
+        StartCoroutine(updateAllSpawnedLandmarkLocations());
         yield return new WaitForSeconds(5.0f);
-        StartCoroutine(populateDynamicList(detectionSlider.value));
+        StartCoroutine(populateDynamicList(landmarkSpawnDistance));
+    }
+
+    public IEnumerator updateAllSpawnedLandmarkLocations()
+    {
+        Debug.Log("Reconfirming Locations");
+        foreach(GameObject i in LiveLandMarks)
+        {
+            foreach(mapboxFeatureClass feature in dynamicFeatureList)
+            {
+                if(i.name.Contains(feature.properties.landmarkID))
+                {
+                    Debug.Log("Found LandMark In livevector");
+                    LiveDebug.text = "Found Existing Landmark Updating";
+                    Vector2d reConfirmedVector2D;
+                    reConfirmedVector2D.y = feature.geometry.coordinates[0];
+                    reConfirmedVector2D.x = feature.geometry.coordinates[1];
+                    i.transform.position = locationProviderFactoryLink.mapManager.GeoToWorldPosition(reConfirmedVector2D);
+                }
+            }
+        }
+        yield return null;
     }
 }
