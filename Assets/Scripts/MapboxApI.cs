@@ -17,17 +17,10 @@ public class MapboxApI : MonoBehaviour
     //Interface Into Locationprovider
     public LocationProviderFactory locationProviderFactoryLink;
     public ARFocusSquare userFocusSquare;
-    public Vector3 focusSquareRayRayCastHit;
     public float landmarkSpawnDistance = 100.0f; 
 
-    //SetupDebuging Texts
-    public Text currentLocation;
-    public Text currentLookAtVector3;
-    public Text currentFeatures;
-    public Text userVector2D;
-    public Text dynamicFeatureListCount;
-    public Text LiveDebug;  
-    public Text fzeroDouble;
+    public Text UpdateInfoDebug;
+    public string hudDebug00;
     public List<mapboxFeatureClass> dynamicFeatureList;
 
     //LandMark Spawning Variables
@@ -50,12 +43,6 @@ public class MapboxApI : MonoBehaviour
     //Setting Up Dyanmic Lists
     public mapboxFeatureSet RetrievedFeatureList;
 
-
-    //Detection System Initial Stuff
-    public double detectionRadius = 0;
-    public int nearbyFeatures = 0;
-    public Vector2d userV2D;
-
     //Building Live Landmark Spawning
     public List<GameObject> LiveLandMarks;
 
@@ -74,27 +61,34 @@ public class MapboxApI : MonoBehaviour
     public void Update()
     {
 
-        //GUI Debugging Things
-        focusSquareRayRayCastHit = userFocusSquare.focusSquareRayCastHitVector;
-        currentLookAtVector3.text = "Current Look at V3: "+focusSquareRayRayCastHit.ToString();
-        userVector2D.text = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit).ToString();
-        currentFeatures.text = RetrievedFeatureList.features.Count.ToString();
-        dynamicFeatureListCount.text = dynamicFeatureList.Count.ToString();
+        //Making the GUi Simpler
+        string lookatV3 = userFocusSquare.focusSquareRayCastHitVector.ToString();
+        string lookatV2 = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector).ToString();
+        string totalFeatures = RetrievedFeatureList.features.Count.ToString();
+        string dynamicFeatures = dynamicFeatureList.Count.ToString();
+        string livelandmarks = LiveLandMarks.Count.ToString();
+        UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
+
     }
+
+
+
 
     public void CreateNewLandMarkAtLocation()
     {
-        Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
-        Vector3 landmarkDeploylocation = focusSquareRayRayCastHit;
+        Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
+        Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
+        float landmarkHeight = landmarkDeploylocation.y;
         string feature_id = generateFeatureID();
         string LandMarkName = TXTInput_LandMarkName.text;
-        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id));
+        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight));
         GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
         createdLandmark.name = "Landmark_"+feature_id.ToString();
         createdLandmark.transform.localScale = landmarkScale;
-        LiveLandMarks.Add(createdLandmark);
         
-        LiveDebug.text = "Creating New LandMark";
+        //Add to LiveList
+        LiveLandMarks.Add(createdLandmark);
+
     }
 
     public void SpawnExistingLandMarkIntoScene(string feature_id, mapboxFeatureClass feature)
@@ -103,12 +97,18 @@ public class MapboxApI : MonoBehaviour
         existingLandMarkLocation.y = feature.geometry.coordinates[0];
         existingLandMarkLocation.x = feature.geometry.coordinates[1];
         Vector3 existingLandMarkUnityLocation = locationProviderFactoryLink.mapManager.GeoToWorldPosition(existingLandMarkLocation);
+
+        if(userFocusSquare.focusSquareRayCastHitVector !=null)
+        {
+            existingLandMarkUnityLocation.y = userFocusSquare.focusSquareRayCastHitVector.y;
+        }
+        
         GameObject existingLandMark = GameObject.Instantiate(landMarkPrefab,existingLandMarkUnityLocation, landMarkPrefab.transform.rotation);
         existingLandMark.name = "Landmark_"+feature_id.ToString();
         existingLandMark.transform.localScale = landmarkScale;
-        LiveLandMarks.Add(existingLandMark);
 
-        LiveDebug.text = "Adding Existing LandMark";
+        //Add to LiveList
+        LiveLandMarks.Add(existingLandMark);
     }
 
     public float landMarkDistance(mapboxFeatureClass inputFeature, Vector3 LookAtRaycast)
@@ -143,12 +143,14 @@ public class MapboxApI : MonoBehaviour
     }
     public IEnumerator listLandmarks()
     {
+        Debug.Log("Listing Landmarks");
         string endpoint_list = "https://api.mapbox.com/datasets/v1/"+userName+"/"+dataset_id+"/"+"features?"+"access_token="+access_token;
         UnityWebRequest www=UnityWebRequest.Get(endpoint_list);
         www.SetRequestHeader("Content-Type", "application/json");
         yield return www.SendWebRequest();
         responseCode = www.responseCode.ToString();
         string downloadeddata = www.downloadHandler.text;
+        Debug.Log(downloadeddata);
         RetrievedFeatureList = JsonUtility.FromJson<mapboxFeatureSet>(downloadeddata);
         if(www.isNetworkError || www.isHttpError)
         {
@@ -158,7 +160,7 @@ public class MapboxApI : MonoBehaviour
             Debug.Log("Passed "+www.downloadHandler.text);
         }
     }
-    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id)
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight)
     {   
         //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
@@ -168,7 +170,8 @@ public class MapboxApI : MonoBehaviour
         testLandMark.properties = featureProperties;
         testLandMark.geometry = featureGeometry;
         testLandMark.geometry.coordinates = featurecoordinates;
-        var userFocusVector2D = locationProviderFactoryLink.mapManager.WorldToGeoPosition(focusSquareRayRayCastHit);
+        var userFocusVector2D = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
+
         //Fill in the landmark Data
         testLandMark.id = feature_id;
         testLandMark.type = "Feature";
@@ -179,6 +182,8 @@ public class MapboxApI : MonoBehaviour
         testLandMark.properties.creator = "Xinz";
         testLandMark.properties.likes = 1112;
         testLandMark.properties.landmarkID = feature_id;
+
+        //Add the to spawn lists
         dynamicFeatureList.Add(testLandMark);
 
         //Final JSON Conversion
@@ -208,7 +213,7 @@ public class MapboxApI : MonoBehaviour
         foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
         {
             Debug.Log("Checking Max D");
-            float distance = landMarkDistance(i,focusSquareRayRayCastHit);
+            float distance = landMarkDistance(i,userFocusSquare.focusSquareRayCastHitVector);
             if (distance < maxDistance)
             {
                 Debug.Log("Found Landmarks Undermax D");
@@ -235,7 +240,6 @@ public class MapboxApI : MonoBehaviour
             }else
             {
                 //Object is too far remove and clean from lists
-                Debug.Log("Detroying Feature");
                 dynamicFeatureList.Remove(i);
                 string LandMarkToDestroyName = "Landmark_"+i.properties.landmarkID.ToString();
                 GameObject.Destroy(GameObject.Find(LandMarkToDestroyName));
@@ -250,19 +254,18 @@ public class MapboxApI : MonoBehaviour
 
     public IEnumerator updateAllSpawnedLandmarkLocations()
     {
-        Debug.Log("Reconfirming Locations");
         foreach(GameObject i in LiveLandMarks)
         {
             foreach(mapboxFeatureClass feature in dynamicFeatureList)
             {
                 if(i.name.Contains(feature.properties.landmarkID))
                 {
-                    Debug.Log("Found LandMark In livevector");
-                    LiveDebug.text = "Found Existing Landmark Updating";
                     Vector2d reConfirmedVector2D;
                     reConfirmedVector2D.y = feature.geometry.coordinates[0];
                     reConfirmedVector2D.x = feature.geometry.coordinates[1];
-                    i.transform.position = locationProviderFactoryLink.mapManager.GeoToWorldPosition(reConfirmedVector2D);
+                    Vector3 reConfirmedVector3 = locationProviderFactoryLink.mapManager.GeoToWorldPosition(reConfirmedVector2D);
+                    reConfirmedVector3.y = userFocusSquare.focusSquareRayCastHitVector.y;
+                    i.transform.position = reConfirmedVector3;
                 }
             }
         }
