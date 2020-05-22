@@ -69,6 +69,19 @@ public class MapboxApI : MonoBehaviour
         string livelandmarks = LiveLandMarks.Count.ToString();
         UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
 
+
+
+        //Listen For Touch Input
+        if(Input.touches[0].phase == TouchPhase.Began)
+        {
+            hudDebug00 = "Detected Touch!";
+        }
+        if(Input.touches[0].phase == TouchPhase.Ended)
+        {
+            hudDebug00 = "Touch Ended";
+        }
+
+
     }
 
 

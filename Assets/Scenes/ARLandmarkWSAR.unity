@@ -490,7 +490,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   locationProviderFactoryLink: {fileID: 501551841}
   userFocusSquare: {fileID: 752645060}
-  focusSquareRayRayCastHit: {x: 0, y: 0, z: 0}
   landmarkSpawnDistance: 50
   UpdateInfoDebug: {fileID: 568991738}
   hudDebug00: 
@@ -779,7 +778,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 348, y: -501}
+  m_AnchoredPosition: {x: 348, y: -857}
   m_SizeDelta: {x: 263.56143, y: 130.5138}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1557281233
@@ -910,7 +909,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -146.97, y: -501}
+  m_AnchoredPosition: {x: -146.97, y: -854}
   m_SizeDelta: {x: 666.3012, y: 130.50966}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1568588383
