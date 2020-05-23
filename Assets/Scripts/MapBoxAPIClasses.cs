@@ -25,8 +25,7 @@ public class Properties
     public string name;
     public int likes;
     public string creator;
-    public int thumbImage;
-    public int bgLImage;
+    public string logoShape;
     public string landmarkID;
 }
 

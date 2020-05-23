@@ -25,6 +25,7 @@ public class MapboxApI : MonoBehaviour
 
     //LandMark Spawning Variables
     public InputField TXTInput_LandMarkName;
+    public string landmarkLogoCode;
     public Vector3 landmarkScale;
     public GameObject landMarkPrefab;
     //The Landmark the user is looking at (deduced via raycasting)
@@ -45,6 +46,8 @@ public class MapboxApI : MonoBehaviour
 
     //Building Live Landmark Spawning
     public List<GameObject> LiveLandMarks;
+
+    public LMICreate LandMarkCreateGUI;
 
 
 
@@ -74,7 +77,9 @@ public class MapboxApI : MonoBehaviour
         //Listen For Touch Input
         if(Input.touches[0].phase == TouchPhase.Began)
         {
+            //Show Create Mene
             hudDebug00 = "Detected Touch!";
+            LandMarkCreateGUI.showCreateMenu();
         }
         if(Input.touches[0].phase == TouchPhase.Ended)
         {
@@ -93,9 +98,19 @@ public class MapboxApI : MonoBehaviour
         Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
         float landmarkHeight = landmarkDeploylocation.y;
         string feature_id = generateFeatureID();
-        string LandMarkName = TXTInput_LandMarkName.text;
-        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight));
+        
+        //bEING tESTED
+        string LandMarkName = LandMarkCreateGUI.LandMarkName.text;
+        string LandMarkLogoShape = LandMarkCreateGUI.LandmarkLogoShape;
+
+        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight,LandMarkLogoShape));
+
         GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
+
+        createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = LandMarkLogoShape;
+        createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkText = LandMarkCreateGUI.LandMarkName.text;
+        //End Testing
+
         createdLandmark.name = "Landmark_"+feature_id.ToString();
         createdLandmark.transform.localScale = landmarkScale;
         
@@ -117,6 +132,10 @@ public class MapboxApI : MonoBehaviour
         GameObject existingLandMark = GameObject.Instantiate(landMarkPrefab,existingLandMarkUnityLocation, landMarkPrefab.transform.rotation);
         existingLandMark.name = "Landmark_"+feature_id.ToString();
         existingLandMark.transform.localScale = landmarkScale;
+
+        //Preload physical look values from the data on the cloud
+        existingLandMark.GetComponent<ARLandMarkInternalController>().landmarkLogo = feature.properties.logoShape;
+        existingLandMark.GetComponent<ARLandMarkInternalController>().landmarkText = feature.properties.name;
 
         //Add to LiveList
         LiveLandMarks.Add(existingLandMark);
@@ -171,7 +190,7 @@ public class MapboxApI : MonoBehaviour
             Debug.Log("Passed "+www.downloadHandler.text);
         }
     }
-    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight)
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape)
     {   
         //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
@@ -193,6 +212,7 @@ public class MapboxApI : MonoBehaviour
         testLandMark.properties.creator = "Xinz";
         testLandMark.properties.likes = 1112;
         testLandMark.properties.landmarkID = feature_id;
+        testLandMark.properties.logoShape = landmarkLogoShape;
 
         //Add the to spawn lists
         dynamicFeatureList.Add(testLandMark);

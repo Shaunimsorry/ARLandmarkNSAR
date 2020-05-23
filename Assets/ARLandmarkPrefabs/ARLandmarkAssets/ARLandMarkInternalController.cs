@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class ARLandMarkInternalController : MonoBehaviour
 {
@@ -12,6 +14,8 @@ public class ARLandMarkInternalController : MonoBehaviour
     public GameObject landmark_circleLogo;
 
     public string landmarkLogo;
+    public string landmarkText;
+    public TextMeshPro landmarkTitle;
 
 
 
@@ -66,5 +70,7 @@ public class ARLandMarkInternalController : MonoBehaviour
                 }
             }
         }
+
+        landmarkTitle.text = landmarkText;
     }
 }
