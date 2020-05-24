@@ -14,8 +14,14 @@ public class ARLandMarkInternalController : MonoBehaviour
     public GameObject landmark_circleLogo;
 
     public string landmarkLogo;
-    public string landmarkText;
+    public string stringlandmarkText;
+    public string stringlandmarkCreator;
+    public string stringlandMarkLikes;
     public TextMeshPro landmarkTitle;
+    public TextMeshPro landmarkCreator;
+    public TextMeshPro landmarkLikes;
+
+    public string landMarkID;
 
 
 
@@ -30,22 +36,16 @@ public class ARLandMarkInternalController : MonoBehaviour
         {
             targetCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         }
-
         landmark_circleLogo.SetActive(false);
         landmark_Squarelogo.SetActive(false);
         landmark_triangleLogo.SetActive(false);
-         
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        Vector3 landmarkVector = transform.position;
-        Vector3 cameraVector = targetCamera.transform.position;
-        Vector3 relativepos = cameraVector - landmarkVector;
-        relativepos.y = 0;
-        Quaternion deducedRotation = Quaternion.LookRotation(relativepos);;
-        transform.rotation = deducedRotation;
+        
+        //Setup the land mark with data from the cloud
+        landmarkTitle.text = stringlandmarkText;
+        landmarkCreator.text = stringlandmarkCreator;
+        landmarkLikes.text = stringlandMarkLikes;
+
 
         //Setup Landmark Type Switcher
         if(landmarkLogo == "Square")
@@ -71,6 +71,17 @@ public class ARLandMarkInternalController : MonoBehaviour
             }
         }
 
-        landmarkTitle.text = landmarkText;
+                 
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Vector3 landmarkVector = transform.position;
+        Vector3 cameraVector = targetCamera.transform.position;
+        Vector3 relativepos = cameraVector - landmarkVector;
+        relativepos.y = 0;
+        Quaternion deducedRotation = Quaternion.LookRotation(relativepos);;
+        transform.rotation = deducedRotation;
     }
 }

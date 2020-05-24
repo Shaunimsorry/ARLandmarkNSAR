@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e6f16b9294a2f2c41bd00b4494a510bc
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - LandmarkThumbImage: {instanceID: 0}
+  - TriangleLogo: {fileID: 21300000, guid: 27efadc93cb5d5e4287e7e0e3bd6a576, type: 3}
+  - SquareLogo: {fileID: 21300000, guid: 409fb35ed75610347aa20d6f6a8ac14e, type: 3}
+  - Circlelogo: {fileID: 21300000, guid: 47d2a0852d518bc44af5186faff6abaa, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

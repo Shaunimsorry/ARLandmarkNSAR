@@ -48,6 +48,7 @@ public class MapboxApI : MonoBehaviour
     public List<GameObject> LiveLandMarks;
 
     public LMICreate LandMarkCreateGUI;
+    public LMIInfo LandMarkInfoGUI;
     public bool LandmarkWindow = false;
 
 
@@ -72,22 +73,8 @@ public class MapboxApI : MonoBehaviour
         string dynamicFeatures = dynamicFeatureList.Count.ToString();
         string livelandmarks = LiveLandMarks.Count.ToString();
         UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
-        hudDebug00 = "Bool Setting: "+LandmarkWindow.ToString();
 
-
-
-        // //Listen For Touch Input
-        // if(Input.touches[0].phase == TouchPhase.Began)
-        // {
-        //     //Show Create Mene
-        //     hudDebug00 = "Detected Touch!";
-        //     LandMarkCreateGUI.showCreateMenu();
-        // }
-        // if(Input.touches[0].phase == TouchPhase.Ended)
-        // {
-        //     hudDebug00 = "Touch Ended";
-        // }
-
+        
         checkUserTouchOnLandmark();
     }
 
@@ -107,7 +94,7 @@ public class MapboxApI : MonoBehaviour
         GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
 
         createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = LandMarkLogoShape;
-        createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkText = LandMarkCreateGUI.LandMarkName.text;
+        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = LandMarkCreateGUI.LandMarkName.text;
         //End Testing
 
         createdLandmark.name = "Landmark_"+feature_id.ToString();
@@ -134,7 +121,10 @@ public class MapboxApI : MonoBehaviour
 
         //Preload physical look values from the data on the cloud
         existingLandMark.GetComponent<ARLandMarkInternalController>().landmarkLogo = feature.properties.logoShape;
-        existingLandMark.GetComponent<ARLandMarkInternalController>().landmarkText = feature.properties.name;
+        existingLandMark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = feature.properties.name;
+        existingLandMark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = feature.properties.creator;
+        existingLandMark.GetComponent<ARLandMarkInternalController>().landMarkID = feature.properties.landmarkID;
+        existingLandMark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = feature.properties.likes.ToString();
 
         //Add to LiveList
         LiveLandMarks.Add(existingLandMark);
@@ -310,19 +300,23 @@ public class MapboxApI : MonoBehaviour
         {
             if(LandmarkWindow == false)
             {
+                hudDebug00 = "Raycasting!";
                 //Dev: Check if finger touch was detected with no landmark window presenrt
                 //Raycast
                 RaycastHit hit;
                 if(Physics.Raycast(Camera.main.transform.position,Camera.main.transform.forward, out hit))
                 {
-                    if(hit.collider.gameObject.layer == 12)
+                    if(hit.collider.gameObject.layer == 13)
                     {
-                        //Layer 12 is the landmark layer
-                        hudDebug00 = "Keep on going sam!";
+                        //Layer 12 is the landmark layer]
+                        hudDebug00 = "Hitting Landmark!";
+                        LandMarkInfoGUI.showInfoMenu(hit.collider.gameObject);
+
                     }else
                     {
                         if(hit.collider.gameObject.layer == 8)
                         {
+                            hudDebug00 = "Hitting Floor!";
                             //Hit the floor and no window was open
                             LandMarkCreateGUI.showCreateMenu();
                         }

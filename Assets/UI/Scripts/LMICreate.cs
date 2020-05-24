@@ -46,7 +46,7 @@ public class LMICreate : MonoBehaviour
 
     public void setLogoToCircle()
     {
-        LandmarkLogoShape = "Triangle";
+        LandmarkLogoShape = "Circle";
         selectedThumbImage.sprite = Circlelogo;
     }
 
