@@ -48,6 +48,7 @@ public class MapboxApI : MonoBehaviour
     public List<GameObject> LiveLandMarks;
 
     public LMICreate LandMarkCreateGUI;
+    public bool LandmarkWindow = false;
 
 
 
@@ -71,26 +72,24 @@ public class MapboxApI : MonoBehaviour
         string dynamicFeatures = dynamicFeatureList.Count.ToString();
         string livelandmarks = LiveLandMarks.Count.ToString();
         UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
+        hudDebug00 = "Bool Setting: "+LandmarkWindow.ToString();
 
 
 
-        //Listen For Touch Input
-        if(Input.touches[0].phase == TouchPhase.Began)
-        {
-            //Show Create Mene
-            hudDebug00 = "Detected Touch!";
-            LandMarkCreateGUI.showCreateMenu();
-        }
-        if(Input.touches[0].phase == TouchPhase.Ended)
-        {
-            hudDebug00 = "Touch Ended";
-        }
+        // //Listen For Touch Input
+        // if(Input.touches[0].phase == TouchPhase.Began)
+        // {
+        //     //Show Create Mene
+        //     hudDebug00 = "Detected Touch!";
+        //     LandMarkCreateGUI.showCreateMenu();
+        // }
+        // if(Input.touches[0].phase == TouchPhase.Ended)
+        // {
+        //     hudDebug00 = "Touch Ended";
+        // }
 
-
+        checkUserTouchOnLandmark();
     }
-
-
-
 
     public void CreateNewLandMarkAtLocation()
     {
@@ -154,7 +153,6 @@ public class MapboxApI : MonoBehaviour
         featureVector2d.x = inputFeature.geometry.coordinates[1];
         featureVector2d.y = inputFeature.geometry.coordinates[0];
         featureVector3 = locationProviderFactoryLink.mapManager.GeoToWorldPosition(featureVector2d);
-
         return Vector3.Distance(LookAtRaycast,featureVector3);
 
     }
@@ -303,5 +301,38 @@ public class MapboxApI : MonoBehaviour
             }
         }
         yield return null;
+    }
+
+    public GameObject checkUserTouchOnLandmark()
+    {
+        //Custom Function to detecting if the user hit an existing landmark or something in the livelist ?
+        if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            if(LandmarkWindow == false)
+            {
+                //Dev: Check if finger touch was detected with no landmark window presenrt
+                //Raycast
+                RaycastHit hit;
+                if(Physics.Raycast(Camera.main.transform.position,Camera.main.transform.forward, out hit))
+                {
+                    if(hit.collider.gameObject.layer == 12)
+                    {
+                        //Layer 12 is the landmark layer
+                        hudDebug00 = "Keep on going sam!";
+                    }else
+                    {
+                        if(hit.collider.gameObject.layer == 8)
+                        {
+                            //Hit the floor and no window was open
+                            LandMarkCreateGUI.showCreateMenu();
+                        }
+                    }
+                }
+            }
+
+
+        }
+        return null;
+
     }
 }

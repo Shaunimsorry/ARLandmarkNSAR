@@ -6,6 +6,7 @@ using TMPro;
 
 public class LMICreate : MonoBehaviour
 {
+    public MapboxApI MapBoxApiScript;
     public string LandmarkLogoShape;
     public InputField LandMarkName;
     public Image selectedThumbImage;
@@ -16,15 +17,18 @@ public class LMICreate : MonoBehaviour
     public void Start()
     {
         hideCreateMenu();
+        MapBoxApiScript = GameObject.Find("ARLandmarkController").GetComponent<MapboxApI>();
     }
 
     public void hideCreateMenu()
     {
         gameObject.SetActive(false);
+        MapBoxApiScript.LandmarkWindow = false;
     }
     public void showCreateMenu()
     {
         gameObject.SetActive(true);
+        MapBoxApiScript.LandmarkWindow = true;
     }
 
 

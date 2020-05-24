@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5748387206144355456}
   - component: {fileID: 3201891009922431355}
   - component: {fileID: 4771461307898462317}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Front Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +215,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8842722267747904434}
   - component: {fileID: 23689204764393106}
-  m_Layer: 0
+  - component: {fileID: 2559654137699178853}
+  m_Layer: 12
   m_Name: ARLandmark
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,6 +262,20 @@ MonoBehaviour:
   landmarkLogo: 
   landmarkText: 
   landmarkTitle: {fileID: 4771461307898462317}
+--- !u!136 &2559654137699178853
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8456964840504316520}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.71
+  m_Height: 8.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 3.53, z: 0}
 --- !u!1001 &3988204149510775916
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -347,6 +362,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: YellowCircle
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 15a238c3d83e3114998f8375eb8bbf20,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2534866581884222612, guid: 15a238c3d83e3114998f8375eb8bbf20,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 15a238c3d83e3114998f8375eb8bbf20, type: 3}
@@ -449,6 +474,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: LandMarkHeader_GreenTriangle
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 93cf49c44e5dfbf408cec2320c0fced6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2534866581884222612, guid: 93cf49c44e5dfbf408cec2320c0fced6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 93cf49c44e5dfbf408cec2320c0fced6, type: 3}
 --- !u!1 &3671138717689794794 stripped
@@ -550,6 +585,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: LandMarkHeader_BlueSquare
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: fb8e1290ee5682d4387604ed432c9557,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2534866581884222612, guid: fb8e1290ee5682d4387604ed432c9557,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fb8e1290ee5682d4387604ed432c9557, type: 3}
 --- !u!1 &1303633629463830092 stripped
@@ -631,6 +676,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: LandMarkBaseTorus
       objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: aae8919a198d615458484c8eff8f85ef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2534866581884222612, guid: aae8919a198d615458484c8eff8f85ef,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aae8919a198d615458484c8eff8f85ef, type: 3}
 --- !u!4 &2470543378000812846 stripped
@@ -705,6 +760,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LandMarkBasePole
+      objectReference: {fileID: 0}
+    - target: {fileID: -927199367670048503, guid: 2191b502bfcae844babeafb9cdba24bf,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2534866581884222612, guid: 2191b502bfcae844babeafb9cdba24bf,
+        type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2191b502bfcae844babeafb9cdba24bf, type: 3}
