@@ -61,6 +61,8 @@ public class MapboxApI : MonoBehaviour
         //Populate The Dynamic List With Landmarks 100 Clicks From GPS every 5 Seconds
         StartCoroutine(populateDynamicList(landmarkSpawnDistance));
         //Deploy and manage all landmarks from the lists
+        
+        
     }
 
     public void Update()
@@ -177,6 +179,12 @@ public class MapboxApI : MonoBehaviour
         {
             Debug.Log("Passed "+www.downloadHandler.text);
         }
+
+
+
+        StartCoroutine(updateLandMark("fl6s44ejcs92y8y445xut66v81iwr57g", 3000));
+
+
     }
     public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape)
     {   
@@ -291,6 +299,34 @@ public class MapboxApI : MonoBehaviour
             }
         }
         yield return null;
+    }
+
+    public IEnumerator updateLandMark(string landmarkId, int newlikes)
+    {
+        mapboxFeatureClass targetFeature = new mapboxFeatureClass();
+        foreach(mapboxFeatureClass i in RetrievedFeatureList.features)
+        {
+            if(i.properties.landmarkID == landmarkId)
+            {
+                targetFeature = i;
+                Debug.Log(targetFeature.properties.name.ToString());
+            }
+        }
+        targetFeature.properties.likes = newlikes;
+        string updatedJson = JsonUtility.ToJson(targetFeature);
+        string endpoint_update = "https://api.mapbox.com/datasets/v1/tankbusta/"+dataset_id+"/features/"+targetFeature.properties.landmarkID+"?access_token="+secret_token;
+        UnityWebRequest www=UnityWebRequest.Put(endpoint_update,updatedJson);
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
+        responseCode = www.responseCode.ToString();
+
+        if(www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log("Error: "+www.error);
+        }else
+        {
+            Debug.Log("Passed "+www.downloadHandler.text);
+        }
     }
 
     public GameObject checkUserTouchOnLandmark()

@@ -16,6 +16,8 @@ public class LMIInfo : MonoBehaviour
     public TextMeshProUGUI Landmarkname;
     public Image landmarkLogo;
 
+    public GameObject targetLandmark;
+
     public void Start()
     {
         hideInfoMenu();
@@ -29,6 +31,9 @@ public class LMIInfo : MonoBehaviour
     }
     public void showInfoMenu(GameObject existingLandmark)
     {
+        //Setup the target landmark
+        targetLandmark = existingLandmark;
+
         gameObject.SetActive(true);
         MapBoxApiScript.LandmarkWindow = true;
 
@@ -54,9 +59,17 @@ public class LMIInfo : MonoBehaviour
                 }
             }
         }
+    }
 
-
-
-
+    public void addLike()
+    {
+        int likes;
+        //Pull the like count from the internal landmark controller
+        likes = System.Convert.ToInt32(targetLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes);
+        likes ++;
+        //Feed it back in
+        targetLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = likes.ToString();
+        //Feed it to the server
+        
     }
 }

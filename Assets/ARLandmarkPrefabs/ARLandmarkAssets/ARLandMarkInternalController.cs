@@ -83,5 +83,10 @@ public class ARLandMarkInternalController : MonoBehaviour
         relativepos.y = 0;
         Quaternion deducedRotation = Quaternion.LookRotation(relativepos);;
         transform.rotation = deducedRotation;
+
+
+        //Needs to be live so its always updating
+        landmarkLikes.text = stringlandMarkLikes;
+
     }
 }
