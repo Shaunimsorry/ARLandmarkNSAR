@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ARLandmarkWSAR.unity
     guid: 772efaec113a9414786da82753bacd5c
+  - enabled: 0
+    path: Assets/MapboxAR/Examples/Scenes/WorldScaleAR-ManualAlignment.unity
+    guid: d9ff170f22f0545c3970a889a592f312
   m_configObjects: {}
