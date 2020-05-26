@@ -506,10 +506,12 @@
      <Compile Include="Assets\Scripts\ARLandmarkController.cs" />
      <Compile Include="Assets\Scripts\ARLandmarkCreator.cs" />
      <Compile Include="Assets\Scripts\LatLongReporter.cs" />
+     <Compile Include="Assets\Scripts\MainMenuController.cs" />
      <Compile Include="Assets\Scripts\MapBoxAPIClasses.cs" />
      <Compile Include="Assets\Scripts\MapboxApI.cs" />
      <Compile Include="Assets\UI\Scripts\LMICreate.cs" />
      <Compile Include="Assets\UI\Scripts\LMIInfo.cs" />
+     <Compile Include="Assets\UI\Scripts\UserProfile.cs" />
      <Compile Include="Assets\UnityARInterface\ARRemote\Scripts\ARRemoteDevice.cs" />
      <Compile Include="Assets\UnityARInterface\ARRemote\Scripts\ARRemoteEditor.cs" />
      <Compile Include="Assets\UnityARInterface\ARRemote\Scripts\ARRemoteEditorInterface.cs" />

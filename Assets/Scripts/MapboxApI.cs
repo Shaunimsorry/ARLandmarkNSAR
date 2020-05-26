@@ -30,6 +30,7 @@ public class MapboxApI : MonoBehaviour
     public GameObject landMarkPrefab;
     //The Landmark the user is looking at (deduced via raycasting)
     public GameObject userLookLandMark;
+    public string username;
 
 
     //API Details
@@ -38,7 +39,7 @@ public class MapboxApI : MonoBehaviour
     public string dataset_id = "cka0vudxx13p72smuavafd1um";
     public string access_token = "pk.eyJ1IjoidGFua2J1c3RhIiwiYSI6ImNrN3BhYjdvZTAzbHMza3VmMmhhbGxtc3YifQ.Z8ohtdn7-BsOzeznsXm3EQ";
     public string secret_token = "sk.eyJ1IjoidGFua2J1c3RhIiwiYSI6ImNrYWQ3MjN6ODFqMWMzNHM5NzM3bm40ajgifQ.WEZKnrork6sshSBo1aPcjA";
-    public string userName = "tankbusta";
+    public string mapbox_username = "tankbusta";
     
 
     //Setting Up Dyanmic Lists
@@ -49,6 +50,8 @@ public class MapboxApI : MonoBehaviour
 
     public LMICreate LandMarkCreateGUI;
     public LMIInfo LandMarkInfoGUI;
+    public Button userProfileButton;
+    public GameObject userProfilePlaceHolder;
     public bool LandmarkWindow = false;
 
 
@@ -56,13 +59,14 @@ public class MapboxApI : MonoBehaviour
     //Start!
     public void Start()
     {
+        //Setup the username from the previous scene
+        username = MainMenuController.userName;
         //Activate The Mapbox API and Pulldown all the data
         StartCoroutine(listLandmarks());
         //Populate The Dynamic List With Landmarks 100 Clicks From GPS every 5 Seconds
         StartCoroutine(populateDynamicList(landmarkSpawnDistance));
         //Deploy and manage all landmarks from the lists
-        
-        
+
     }
 
     public void Update()
@@ -91,12 +95,14 @@ public class MapboxApI : MonoBehaviour
         string LandMarkName = LandMarkCreateGUI.LandMarkName.text;
         string LandMarkLogoShape = LandMarkCreateGUI.LandmarkLogoShape;
 
-        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight,LandMarkLogoShape));
+        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight,LandMarkLogoShape, username));
 
         GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
 
         createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = LandMarkLogoShape;
         createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = LandMarkCreateGUI.LandMarkName.text;
+        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = username;
+        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = "0";
         //End Testing
 
         createdLandmark.name = "Landmark_"+feature_id.ToString();
@@ -104,6 +110,7 @@ public class MapboxApI : MonoBehaviour
         
         //Add to LiveList
         LiveLandMarks.Add(createdLandmark);
+        LandMarkCreateGUI.hideCreateMenu();
 
     }
 
@@ -164,7 +171,7 @@ public class MapboxApI : MonoBehaviour
     public IEnumerator listLandmarks()
     {
         Debug.Log("Listing Landmarks");
-        string endpoint_list = "https://api.mapbox.com/datasets/v1/"+userName+"/"+dataset_id+"/"+"features?"+"access_token="+access_token;
+        string endpoint_list = "https://api.mapbox.com/datasets/v1/"+mapbox_username+"/"+dataset_id+"/"+"features?"+"access_token="+access_token;
         UnityWebRequest www=UnityWebRequest.Get(endpoint_list);
         www.SetRequestHeader("Content-Type", "application/json");
         yield return www.SendWebRequest();
@@ -179,14 +186,8 @@ public class MapboxApI : MonoBehaviour
         {
             Debug.Log("Passed "+www.downloadHandler.text);
         }
-
-
-
-        StartCoroutine(updateLandMark("fl6s44ejcs92y8y445xut66v81iwr57g", 3000));
-
-
     }
-    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape)
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape, string creatorName)
     {   
         //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
@@ -205,8 +206,8 @@ public class MapboxApI : MonoBehaviour
         testLandMark.geometry.coordinates.Add(landmarkLocation.y);
         testLandMark.geometry.coordinates.Add(landmarkLocation.x);
         testLandMark.geometry.type = "Point";
-        testLandMark.properties.creator = "Xinz";
-        testLandMark.properties.likes = 1112;
+        testLandMark.properties.creator = creatorName;
+        testLandMark.properties.likes = 0;
         testLandMark.properties.landmarkID = feature_id;
         testLandMark.properties.logoShape = landmarkLogoShape;
 
@@ -308,6 +309,7 @@ public class MapboxApI : MonoBehaviour
         {
             if(i.properties.landmarkID == landmarkId)
             {
+                Debug.Log("Found Feature Match: "+landmarkId);
                 targetFeature = i;
                 Debug.Log(targetFeature.properties.name.ToString());
             }
@@ -325,6 +327,7 @@ public class MapboxApI : MonoBehaviour
             Debug.Log("Error: "+www.error);
         }else
         {
+            Debug.Log("Updated Landmark!");
             Debug.Log("Passed "+www.downloadHandler.text);
         }
     }
@@ -334,7 +337,7 @@ public class MapboxApI : MonoBehaviour
         //Custom Function to detecting if the user hit an existing landmark or something in the livelist ?
         if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            if(LandmarkWindow == false)
+            if(LandmarkWindow == false && Input.GetTouch(0).position.y < 1700)
             {
                 hudDebug00 = "Raycasting!";
                 //Dev: Check if finger touch was detected with no landmark window presenrt

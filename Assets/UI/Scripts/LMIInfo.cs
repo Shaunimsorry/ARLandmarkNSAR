@@ -69,7 +69,11 @@ public class LMIInfo : MonoBehaviour
         likes ++;
         //Feed it back in
         targetLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = likes.ToString();
+        //Feed it to the JEE-UI
+        LikeCounter.text = likes.ToString();
         //Feed it to the server
-        
+        StartCoroutine(MapBoxApiScript.updateLandMark(targetLandmark.GetComponent<ARLandMarkInternalController>().landMarkID,likes));
+        MapBoxApiScript.hudDebug00 = "Pullin Response Code: "+MapBoxApiScript.responseCode;
+        hideInfoMenu();
     }
 }
