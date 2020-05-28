@@ -48,7 +48,7 @@ public class MapboxApI : MonoBehaviour
     //Building Live Landmark Spawning
     public List<GameObject> LiveLandMarks;
 
-    public LMICreate LandMarkCreateGUI;
+    public LMI_CarouselController CarouselController;
     public LMIInfo LandMarkInfoGUI;
     public Button userProfileButton;
     public GameObject userProfilePlaceHolder;
@@ -62,7 +62,6 @@ public class MapboxApI : MonoBehaviour
     public TextMeshProUGUI HUD_Username;
     public TextMeshProUGUI HUD_Landmarks;
     public TextMeshProUGUI HUD_Likes;
-
 
 
     //Start!
@@ -91,35 +90,37 @@ public class MapboxApI : MonoBehaviour
         checkUserTouchOnLandmark();
     }
 
-    public void CreateNewLandMarkAtLocation()
-    {
-        Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
-        Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
-        float landmarkHeight = landmarkDeploylocation.y;
-        string feature_id = generateFeatureID();
+    //This function was disabled as custom landmarks were no longer in the scope of XINZ design
+
+    // public void CreateNewLandMarkAtLocation()
+    // {
+    //     Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
+    //     Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
+    //     float landmarkHeight = landmarkDeploylocation.y;
+    //     string feature_id = generateFeatureID();
         
-        //bEING tESTED
-        string LandMarkName = LandMarkCreateGUI.LandMarkName.text;
-        string LandMarkLogoShape = LandMarkCreateGUI.LandmarkLogoShape;
+    //     //bEING tESTED
+    //     string LandMarkName = LandMarkCreateGUI.LandMarkName.text;
+    //     string LandMarkLogoShape = LandMarkCreateGUI.LandmarkLogoShape;
 
-        StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight,LandMarkLogoShape, username));
+    //     StartCoroutine(createLandmark(landmarkLocation,LandMarkName,feature_id,landmarkHeight,LandMarkLogoShape, username));
 
-        GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
+    //     GameObject createdLandmark = GameObject.Instantiate(landMarkPrefab,landmarkDeploylocation,transform.rotation);
 
-        createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = LandMarkLogoShape;
-        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = LandMarkCreateGUI.LandMarkName.text;
-        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = username;
-        createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = "0";
-        //End Testing
-
-        createdLandmark.name = "Landmark_"+feature_id.ToString();
-        createdLandmark.transform.localScale = landmarkScale;
+    //     //Setting up visual drivers
+    //     createdLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = LandMarkLogoShape;
+    //     createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = LandMarkCreateGUI.LandMarkName.text;
+    //     createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = username;
+    //     createdLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = "0";
         
-        //Add to LiveList
-        LiveLandMarks.Add(createdLandmark);
-        LandMarkCreateGUI.hideCreateMenu();
+    //     createdLandmark.name = "Landmark_"+feature_id.ToString();
+    //     createdLandmark.transform.localScale = landmarkScale;
+        
+    //     //Add to LiveList
+    //     LiveLandMarks.Add(createdLandmark);
+    //     LandMarkCreateGUI.hideCreateMenu();
 
-    }
+    // }
 
     public void SpawnExistingLandMarkIntoScene(string feature_id, mapboxFeatureClass feature)
     {
@@ -364,19 +365,15 @@ public class MapboxApI : MonoBehaviour
                         {
                             hudDebug00 = "Hitting Floor!";
                             //Hit the floor and no window was open
-                            LandMarkCreateGUI.showCreateMenu();
+                            CarouselController.showCarousel();
                         }
                     }
                 }
             }
-
-
         }
         return null;
 
     }
-
-
     public void LocateUserJSONData(string startScreenUserName)
     {
         var jsonResult = JsonUtility.FromJson<PlayerSet>(playerDatabaseJsonData);
@@ -428,5 +425,27 @@ public class MapboxApI : MonoBehaviour
         var loadingReq = UnityWebRequest.Get(System.IO.Path.Combine(Application.streamingAssetsPath,"playerData.json"));
         loadingReq.SendWebRequest();
         return loadingReq.downloadHandler.text;
+    }
+
+    public void CreateCarosellLandMarkAtLocation(string landmarkName, string landMarkHeaderShape, string landMarkBG)
+    {
+        Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
+        Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
+        float landmarkHeight = landmarkDeploylocation.y;
+        string feature_id = generateFeatureID();
+
+        GameObject CaroselLandmark = GameObject.Instantiate(landMarkPrefab, landmarkDeploylocation, transform.rotation);
+        CaroselLandmark.GetComponent<ARLandMarkInternalController>().landmarkLogo = landMarkHeaderShape;
+        CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = landmarkName;
+        CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = username;
+        CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = "0";
+
+        CaroselLandmark.name = "Landmark_"+feature_id.ToString();
+        CaroselLandmark.transform.localScale = landmarkScale;
+        LiveLandMarks.Add(CaroselLandmark);
+
+        StartCoroutine(createLandmark(landmarkLocation,landmarkName,feature_id,landmarkHeight,landMarkHeaderShape, username));
+
+        CarouselController.hideCarousel();
     }
 }
