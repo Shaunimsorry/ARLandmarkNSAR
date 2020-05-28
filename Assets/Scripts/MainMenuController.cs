@@ -15,8 +15,13 @@ public class MainMenuController : MonoBehaviour
     //Storin Usernames
     public TMP_InputField startScreenUsernameInput;
 
-    //Do i even need static here ?
     public static string userName;
+
+    public void Start()
+    {
+        //Testing to see if this will allow the data from the menu controller to carry forward into the next scene
+        DontDestroyOnLoad(this.gameObject);
+    }
 
 
     public void StartARLandmark()

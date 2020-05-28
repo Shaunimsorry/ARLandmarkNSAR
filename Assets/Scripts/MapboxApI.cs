@@ -9,7 +9,7 @@ using Mapbox.Unity.Map;
 using Mapbox.Unity.Utilities;
 using Mapbox.Unity.Location;
 using UnityEngine.UI;
-
+using TMPro;
 
 public class MapboxApI : MonoBehaviour
 {
@@ -30,7 +30,7 @@ public class MapboxApI : MonoBehaviour
     public GameObject landMarkPrefab;
     //The Landmark the user is looking at (deduced via raycasting)
     public GameObject userLookLandMark;
-    public string username;
+
 
 
     //API Details
@@ -53,26 +53,34 @@ public class MapboxApI : MonoBehaviour
     public Button userProfileButton;
     public GameObject userProfilePlaceHolder;
     public bool LandmarkWindow = false;
+    public string playerDatabaseJsonData;
+    public string username;
+    public int userlikes;
+    public int userLandmarks;
+    public int userLvl;
+
+    public TextMeshProUGUI HUD_Username;
+    public TextMeshProUGUI HUD_Landmarks;
+    public TextMeshProUGUI HUD_Likes;
 
 
 
     //Start!
     public void Start()
     {
-        //Setup the username from the previous scene
-        username = MainMenuController.userName;
+        //Setup JSON PATH (Andriod Only)
+        playerDatabaseJsonData = PullJsonPath();
+        //Setup Username From Previous Screen
+        LocateUserJSONData(MainMenuController.userName);
         //Activate The Mapbox API and Pulldown all the data
         StartCoroutine(listLandmarks());
         //Populate The Dynamic List With Landmarks 100 Clicks From GPS every 5 Seconds
         StartCoroutine(populateDynamicList(landmarkSpawnDistance));
         //Deploy and manage all landmarks from the lists
-
     }
 
     public void Update()
     {
-
-        //Making the GUi Simpler
         string lookatV3 = userFocusSquare.focusSquareRayCastHitVector.ToString();
         string lookatV2 = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector).ToString();
         string totalFeatures = RetrievedFeatureList.features.Count.ToString();
@@ -80,7 +88,6 @@ public class MapboxApI : MonoBehaviour
         string livelandmarks = LiveLandMarks.Count.ToString();
         UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
 
-        
         checkUserTouchOnLandmark();
     }
 
@@ -367,5 +374,59 @@ public class MapboxApI : MonoBehaviour
         }
         return null;
 
+    }
+
+
+    public void LocateUserJSONData(string startScreenUserName)
+    {
+        var jsonResult = JsonUtility.FromJson<PlayerSet>(playerDatabaseJsonData);
+        PlayerClass targetPlayerClass;
+
+        username = null;
+        //Locate and validate the user
+        foreach (PlayerClass i in jsonResult.ActivePlayers)
+        {
+            if(i.playerName == startScreenUserName)
+            {
+                targetPlayerClass = i;
+                username = i.playerName;
+                userlikes = i.playerLikes;
+                userLvl = i.playerLevel;
+                userLandmarks = i.playerLandmarks;
+            }else
+            {
+                if(i.playerName.ToLower() == startScreenUserName.ToLower())
+                {
+                    targetPlayerClass = i;
+                    username = i.playerName;
+                    userlikes = i.playerLikes;
+                    userLvl = i.playerLevel;
+                    userLandmarks = i.playerLandmarks;
+                }else
+                {
+                    if(i.playerName.ToUpper() == startScreenUserName.ToUpper())
+                    {
+                        targetPlayerClass = i;
+                        username = i.playerName;
+                        userlikes = i.playerLikes;
+                        userLvl = i.playerLevel;
+                        userLandmarks = i.playerLandmarks;
+                    }
+                }
+            }
+        }
+
+        //Fill in the data
+        HUD_Username.text = username;
+        HUD_Likes.text = userlikes.ToString();
+        HUD_Landmarks.text = userLandmarks.ToString();
+
+    }
+
+    public string PullJsonPath()
+    {
+        var loadingReq = UnityWebRequest.Get(System.IO.Path.Combine(Application.streamingAssetsPath,"playerData.json"));
+        loadingReq.SendWebRequest();
+        return loadingReq.downloadHandler.text;
     }
 }

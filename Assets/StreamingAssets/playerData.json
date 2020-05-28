@@ -1,0 +1,31 @@
+{
+    "ActivePlayers": [
+        {
+            "playerName": "Shaun",
+            "playerID": 1,
+            "playerLikes": 200,
+            "playerLandmarks": 15,
+            "playerLevel": 88,
+            "playerAge": 21,
+            "playerCountry": "China"
+        },
+        {
+            "playerName": "Xinz",
+            "playerID": 2,
+            "playerLikes": 300,
+            "playerLandmarks": 208,
+            "playerLevel": 109,
+            "playerAge": 22,
+            "playerCountry": "China"
+        },
+        {
+            "playerName": "Steph",
+            "playerID": 3,
+            "playerLikes": 130,
+            "playerLandmarks": 215,
+            "playerLevel": 309,
+            "playerAge": 19,
+            "playerCountry": "China"
+        }
+    ]
+}
