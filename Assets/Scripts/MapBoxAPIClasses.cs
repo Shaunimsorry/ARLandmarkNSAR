@@ -26,6 +26,7 @@ public class Properties
     public int likes;
     public string creator;
     public string logoShape;
+    public string backgroundKeyword;
     public string landmarkID;
 }
 

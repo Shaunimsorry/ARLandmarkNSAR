@@ -37,6 +37,7 @@ namespace UnityARInterface
 
 		//Modifying this for to pull the hit data out without raycasting again
 		public Vector3 focusSquareRayCastHitVector;
+		public GameObject focusSquareRayCastHitGameObject;
 
 		// Use this for initialization
 		void Start () {
@@ -69,6 +70,7 @@ namespace UnityARInterface
 
 				//Save the vector
 				focusSquareRayCastHitVector = hit.transform.position;
+				focusSquareRayCastHitGameObject = hit.collider.gameObject;
 
 
 

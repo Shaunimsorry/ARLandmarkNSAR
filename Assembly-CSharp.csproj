@@ -510,6 +510,7 @@
      <Compile Include="Assets\Scripts\MapBoxAPIClasses.cs" />
      <Compile Include="Assets\Scripts\MapboxApI.cs" />
      <Compile Include="Assets\Scripts\PlayerClass.cs" />
+     <Compile Include="Assets\UI\Scripts\HudTapToPlacePopup.cs" />
      <Compile Include="Assets\UI\Scripts\LMICreate.cs" />
      <Compile Include="Assets\UI\Scripts\LMIInfo.cs" />
      <Compile Include="Assets\UI\Scripts\LMI_CarouselController.cs" />

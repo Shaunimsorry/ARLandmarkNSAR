@@ -86,6 +86,8 @@ public class MapboxApI : MonoBehaviour
         string dynamicFeatures = dynamicFeatureList.Count.ToString();
         string livelandmarks = LiveLandMarks.Count.ToString();
         UpdateInfoDebug.text = "LAV3: "+lookatV3+"\n"+"LAV2: "+lookatV2+"\n"+"TF: "+totalFeatures+"\n"+"DF: "+dynamicFeatures+"\n"+"LL: "+livelandmarks+"\n"+"HUD Debug00: "+hudDebug00;
+        
+        hudDebug00 = "GOHit: "+userFocusSquare.focusSquareRayCastHitGameObject.ToString();
 
         checkUserTouchOnLandmark();
     }
@@ -143,6 +145,9 @@ public class MapboxApI : MonoBehaviour
         existingLandMark.GetComponent<ARLandMarkInternalController>().landMarkID = feature.properties.landmarkID;
         existingLandMark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = feature.properties.likes.ToString();
 
+        //Implementing the background keyword
+        existingLandMark.GetComponent<ARLandMarkInternalController>().stringBackgroundKeyword = feature.properties.backgroundKeyword;
+
         //Add to LiveList
         LiveLandMarks.Add(existingLandMark);
     }
@@ -195,7 +200,7 @@ public class MapboxApI : MonoBehaviour
             Debug.Log("Passed "+www.downloadHandler.text);
         }
     }
-    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape, string creatorName)
+    public IEnumerator createLandmark(Vector2d landmarkLocation, string LandMarkName, string feature_id, float landmarkHeight, string landmarkLogoShape, string creatorName, string backgroundKeyword)
     {   
         //Prepare Dynamic Placeholders
         mapboxFeatureClass testLandMark = new mapboxFeatureClass();
@@ -218,6 +223,9 @@ public class MapboxApI : MonoBehaviour
         testLandMark.properties.likes = 0;
         testLandMark.properties.landmarkID = feature_id;
         testLandMark.properties.logoShape = landmarkLogoShape;
+
+        //Implementing this
+        testLandMark.properties.backgroundKeyword = backgroundKeyword;
 
         //Add the to spawn lists
         dynamicFeatureList.Add(testLandMark);
@@ -427,7 +435,7 @@ public class MapboxApI : MonoBehaviour
         return loadingReq.downloadHandler.text;
     }
 
-    public void CreateCarosellLandMarkAtLocation(string landmarkName, string landMarkHeaderShape, string landMarkBG)
+    public void CreateCarosellLandMarkAtLocation(string landmarkName, string landMarkHeaderShape, string bgKeyword)
     {
         Vector2d landmarkLocation = locationProviderFactoryLink.mapManager.WorldToGeoPosition(userFocusSquare.focusSquareRayCastHitVector);
         Vector3 landmarkDeploylocation = userFocusSquare.focusSquareRayCastHitVector;
@@ -439,12 +447,13 @@ public class MapboxApI : MonoBehaviour
         CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkText = landmarkName;
         CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandmarkCreator = username;
         CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringlandMarkLikes = "0";
+        CaroselLandmark.GetComponent<ARLandMarkInternalController>().stringBackgroundKeyword = bgKeyword;
 
         CaroselLandmark.name = "Landmark_"+feature_id.ToString();
         CaroselLandmark.transform.localScale = landmarkScale;
         LiveLandMarks.Add(CaroselLandmark);
 
-        StartCoroutine(createLandmark(landmarkLocation,landmarkName,feature_id,landmarkHeight,landMarkHeaderShape, username));
+        StartCoroutine(createLandmark(landmarkLocation,landmarkName,feature_id,landmarkHeight,landMarkHeaderShape, username, bgKeyword));
 
         CarouselController.hideCarousel();
     }
